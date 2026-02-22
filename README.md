@@ -53,7 +53,7 @@ The server acts as a thin proxy: it reads the entity state from Home Assistant a
    | `HA_ENTITY_ID` | `switch.smart_plug`                | Entity ID of the plug in Home Assistant  |
    | `HA_TOKEN`     | *(empty)*                          | Long-lived access token                  |
    | `PLUG_NAME`    | `Smart Plug`                       | Display name shown on the dashboard      |
-   | `HOST_PORT`    | `8080`                             | Port exposed on the host machine         |
+   | `HOST_PORT`    | `2000`                             | Port exposed on the host machine         |
 
 3. **Start the service**
 
@@ -63,7 +63,7 @@ The server acts as a thin proxy: it reads the entity state from Home Assistant a
 
 4. **Open the dashboard**
 
-   Navigate to `http://localhost:8080` (or whatever `HOST_PORT` you chose).
+   Navigate to `http://localhost:2000` (or whatever `HOST_PORT` you chose).
 
 ---
 
