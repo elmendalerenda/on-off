@@ -11,6 +11,7 @@ services:
       - PORT=8080
     extra_hosts:
       - "host.docker.internal:host-gateway"
+      - "homeserver:host-gateway"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
