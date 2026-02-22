@@ -4,11 +4,13 @@ services:
     ports:
       - "${HOST_PORT:-2000}:8080"
     environment:
-      - HA_URL=${HA_URL:-http://homeassistant.local:8123}
+      - HA_URL=${HA_URL:-http://host.docker.internal:8123}
       - HA_ENTITY_ID=${HA_ENTITY_ID:-switch.smart_plug}
       - HA_TOKEN=${HA_TOKEN:-}
       - PLUG_NAME=${PLUG_NAME:-Smart Plug}
       - PORT=8080
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
