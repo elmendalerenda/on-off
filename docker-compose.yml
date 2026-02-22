@@ -2,15 +2,16 @@ services:
   web:
     build: .
     ports:
-      - "${HOST_PORT:-2000}:3000"
+      - "${HOST_PORT:-2000}:8080"
     environment:
       - HA_URL=${HA_URL:-http://homeassistant.local:8123}
       - HA_ENTITY_ID=${HA_ENTITY_ID:-switch.smart_plug}
       - HA_TOKEN=${HA_TOKEN:-}
       - PLUG_NAME=${PLUG_NAME:-Smart Plug}
+      - PORT=8080
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
       interval: 30s
       timeout: 5s
       retries: 3
