@@ -81,25 +81,26 @@
       min-height: 1.1em;
     }
 
-    .refresh-bar {
-      width: 100%;
-      height: 3px;
+    .refresh-btn {
       background: #2d3148;
-      border-radius: 2px;
-      overflow: hidden;
+      color: #94a3b8;
+      border: 1px solid #3d4168;
+      border-radius: 0.5rem;
+      padding: 0.5rem 1.25rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
     }
 
-    .refresh-bar-fill {
-      height: 100%;
-      background: #4f6ef7;
-      border-radius: 2px;
-      width: 100%;
-      animation: countdown 10s linear infinite;
+    .refresh-btn:hover {
+      background: #3d4168;
+      color: #e2e8f0;
     }
 
-    @keyframes countdown {
-      from { width: 100%; }
-      to   { width: 0%; }
+    .refresh-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
     }
 
     .error-msg {
@@ -116,19 +117,17 @@
     <div class="indicator unknown" id="indicator">—</div>
     <div class="status-text" id="status-text">Connecting</div>
     <div class="last-changed" id="last-changed"></div>
-    <div class="refresh-bar"><div class="refresh-bar-fill" id="bar"></div></div>
+    <button class="refresh-btn" id="refresh-btn">Refresh</button>
     <div class="error-msg" id="error-msg"></div>
   </div>
 
   <script>
-    const REFRESH_MS = 10000;
-
     const indicatorEl  = document.getElementById('indicator');
     const statusTextEl = document.getElementById('status-text');
     const plugNameEl   = document.getElementById('plug-name');
     const lastChangedEl= document.getElementById('last-changed');
     const errorMsgEl   = document.getElementById('error-msg');
-    const barEl        = document.getElementById('bar');
+    const refreshBtn   = document.getElementById('refresh-btn');
 
     function formatRelative(isoString) {
       if (!isoString) return '';
@@ -151,6 +150,8 @@
     }
 
     async function fetchStatus() {
+      refreshBtn.disabled = true;
+      refreshBtn.textContent = 'Refreshing…';
       try {
         const res = await fetch('/api/status');
         const data = await res.json();
@@ -164,17 +165,14 @@
       } catch (err) {
         errorMsgEl.textContent = 'Could not reach server';
         applyState('unknown', 'Smart Plug', null);
+      } finally {
+        refreshBtn.disabled = false;
+        refreshBtn.textContent = 'Refresh';
       }
     }
 
-    function resetBar() {
-      barEl.style.animation = 'none';
-      barEl.offsetHeight; // reflow
-      barEl.style.animation = '';
-    }
-
+    refreshBtn.addEventListener('click', fetchStatus);
     fetchStatus();
-    setInterval(() => { fetchStatus(); resetBar(); }, REFRESH_MS);
   </script>
 </body>
 </html>
