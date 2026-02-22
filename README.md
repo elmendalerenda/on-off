@@ -10,7 +10,7 @@ The page auto-refreshes every 10 seconds and displays a color-coded indicator (g
 
 ```
 Browser  ──►  Node/Express server  ──►  Home Assistant REST API
-                  (port 3000)               /api/states/<entity_id>
+                  (port 8080)               /api/states/<entity_id>
 ```
 
 The server acts as a thin proxy: it reads the entity state from Home Assistant and exposes it at `/api/status` so the frontend never needs to store or expose a HA token.
@@ -22,7 +22,7 @@ The server acts as a thin proxy: it reads the entity state from Home Assistant a
 - Docker and Docker Compose
 - A running Home Assistant instance with:
   - A long-lived access token
-  - A switch/plug entity (e.g. `switch.smart_plug`)
+  - A switch/plug entity (e.g. `switch.enchufe_1`)
 
 ---
 
@@ -37,23 +37,25 @@ The server acts as a thin proxy: it reads the entity state from Home Assistant a
 
 2. **Configure environment variables**
 
-   Copy the example below into a `.env` file (never commit this file):
+   Create a `.env` file (never commit this file):
 
    ```env
-   HA_URL=http://homeassistant.local:8123
-   HA_ENTITY_ID=switch.smart_plug
+   HA_URL=http://homeserver:8123
+   HA_ENTITY_ID=switch.enchufe_1
    HA_TOKEN=your_long_lived_access_token
    PLUG_NAME=My Smart Plug
-   HOST_PORT=8080
+   HOST_PORT=2000
    ```
 
-   | Variable       | Default                            | Description                              |
-   |----------------|------------------------------------|------------------------------------------|
-   | `HA_URL`       | `http://homeassistant.local:8123`  | Base URL of your Home Assistant instance |
-   | `HA_ENTITY_ID` | `switch.smart_plug`                | Entity ID of the plug in Home Assistant  |
-   | `HA_TOKEN`     | *(empty)*                          | Long-lived access token                  |
-   | `PLUG_NAME`    | `Smart Plug`                       | Display name shown on the dashboard      |
-   | `HOST_PORT`    | `2000`                             | Port exposed on the host machine         |
+   | Variable       | Default                           | Description                              |
+   |----------------|-----------------------------------|------------------------------------------|
+   | `HA_URL`       | `http://host.docker.internal:8123`| Base URL of your Home Assistant instance |
+   | `HA_ENTITY_ID` | `switch.smart_plug`               | Entity ID of the plug in Home Assistant  |
+   | `HA_TOKEN`     | *(empty)*                         | Long-lived access token (**required**)   |
+   | `PLUG_NAME`    | `Smart Plug`                      | Display name shown on the dashboard      |
+   | `HOST_PORT`    | `2000`                            | Port exposed on the host machine         |
+
+   > **Note on `HA_URL`:** Home Assistant runs on the host machine, not inside the container. The compose file maps your hostname to the host gateway automatically (`extra_hosts`), so you can use `http://homeserver:8123` or `http://host.docker.internal:8123` as-is. Do **not** use `localhost` or `127.0.0.1` — those resolve to the container itself.
 
 3. **Start the service**
 
@@ -105,7 +107,7 @@ on-off/
   "state": "on",
   "name": "My Smart Plug",
   "last_changed": "2026-02-22T08:30:00.000Z",
-  "entity_id": "switch.smart_plug"
+  "entity_id": "switch.enchufe_1"
 }
 ```
 
@@ -116,13 +118,13 @@ on-off/
 ```bash
 cd server
 npm install
-HA_URL=http://homeassistant.local:8123 \
+HA_URL=http://homeserver:8123 \
 HA_TOKEN=your_token \
-HA_ENTITY_ID=switch.smart_plug \
+HA_ENTITY_ID=switch.enchufe_1 \
 node index.js
 ```
 
-The server listens on port `3000` by default.
+The server listens on port `8080` by default.
 
 ---
 
