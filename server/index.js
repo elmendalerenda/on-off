@@ -48,6 +48,38 @@ app.get('/api/status', async (req, res) => {
   }
 });
 
+app.post('/api/toggle', async (req, res) => {
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (HA_TOKEN) headers['Authorization'] = `Bearer ${HA_TOKEN}`;
+
+    // Fetch current state first
+    const stateRes = await fetch(`${HA_URL}/api/states/${HA_ENTITY_ID}`, { headers, timeout: 5000 });
+    if (!stateRes.ok) {
+      return res.status(502).json({ error: `Home Assistant returned ${stateRes.status}` });
+    }
+    const stateData = await stateRes.json();
+    const currentState = stateData.state;
+    const service = currentState === 'on' ? 'turn_off' : 'turn_on';
+    const domain = HA_ENTITY_ID.split('.')[0];
+
+    const toggleRes = await fetch(`${HA_URL}/api/services/${domain}/${service}`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ entity_id: HA_ENTITY_ID }),
+      timeout: 5000,
+    });
+
+    if (!toggleRes.ok) {
+      return res.status(502).json({ error: `Home Assistant returned ${toggleRes.status}` });
+    }
+
+    res.json({ state: service === 'turn_on' ? 'on' : 'off' });
+  } catch (err) {
+    res.status(503).json({ error: err.message });
+  }
+});
+
 app.get('/health', (req, res) => res.json({ ok: true }));
 
 app.listen(PORT, () => {
